@@ -6,13 +6,14 @@ import (
 	"fmt"
 	"path"
 
+	"github.com/dimazaicev88/ts/config"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/mysql"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/sirupsen/logrus"
 )
 
-func MigrateDb(config DbConfig, pathToMigrations string) error {
+func MigrateDb(config config.DbConfig, pathToMigrations string) error {
 	urlConnect := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?multiStatements=true",
 		config.Login,
 		config.Password,

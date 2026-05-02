@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/dimazaicev88/ts/config"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/mysqldialect"
 	"github.com/uptrace/bun/extra/bundebug"
 )
 
-func NewMysql(conf DbConfig) (*bun.DB, error) {
+func NewMysql(conf config.DbConfig) (*bun.DB, error) {
 	urlConnect := fmt.Sprintf("%s:%s@tcp(%s:%s)",
 		conf.Login,
 		conf.Password,

@@ -1,19 +1,18 @@
-package server
+package ts
 
 import (
 	"context"
 	"errors"
 	"time"
 
-	"github.com/dimazaicev88/ts/internal/config"
-
+	"github.com/dimazaicev88/ts/config"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 	"github.com/rs/zerolog/log"
 )
 
 // CreateStreamWithConsumer Создаём Stream
-func CreateStreamWithConsumer(ctx context.Context, config config.Config) error {
+func CreateStreamWithConsumer(ctx context.Context, config config.ServerConfig) error {
 	nc, err := nats.Connect(
 		config.NatsURL,
 		nats.Timeout(5*time.Second),

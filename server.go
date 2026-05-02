@@ -1,13 +1,12 @@
-package server
+package ts
 
 import (
 	"context"
 	"fmt"
 
+	"github.com/dimazaicev88/ts/config"
 	_ "github.com/dimazaicev88/ts/docs"
-	"github.com/dimazaicev88/ts/internal/config"
 	wssHandlers "github.com/dimazaicev88/ts/internal/handlers/ws"
-	"github.com/dimazaicev88/ts/internal/routes"
 	"github.com/dimazaicev88/ts/internal/services"
 	"github.com/dimazaicev88/ts/internal/storage"
 	"github.com/dimazaicev88/ts/internal/wss"
@@ -17,7 +16,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func RunServer(ctx context.Context, config config.Config) {
+func RunServer(ctx context.Context, config config.ServerConfig) {
 	if config.HttpServerPort <= 0 {
 		log.Fatal().Msg("http port must be greater than zero")
 	}
@@ -39,7 +38,7 @@ func RunServer(ctx context.Context, config config.Config) {
 		log.Fatal().Err(err).Msg("connect to centrifugo client failed")
 	}
 	allServices := services.NewAllServices(db, centrifugeClient)
-	routes.NewRoutes(ctx, fb, config, allServices).AddRoutes()
+	NewRoutes(ctx, fb, config, allServices).AddRoutes()
 	wssHandlers.RegWssHandlers(ctx, allServices, centrifugeClient)
 	errStartServer := make(chan error)
 

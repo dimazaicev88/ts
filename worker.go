@@ -1,4 +1,4 @@
-package workers
+package ts
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	config2 "github.com/dimazaicev88/ts/config"
 	"github.com/dimazaicev88/ts/internal/dto"
 	"github.com/dimazaicev88/ts/internal/services"
 	statusTask "github.com/dimazaicev88/ts/internal/task/status"
@@ -23,13 +24,8 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type Config struct {
-	WorkerName string
-	ServerURL  string
-}
-
 type Worker struct {
-	config Config
+	config config2.WorkerConfig
 	nc     *nats.Conn
 	js     nats.JetStreamContext
 
@@ -47,7 +43,7 @@ type Worker struct {
 
 func NewWorkerPool(
 	ctx context.Context,
-	config Config,
+	config config2.WorkerConfig,
 ) (*Worker, error) {
 	healService := services.NewHealthServer(config.ServerURL)
 	err := healService.WaitServerAvailable(ctx, time.Hour*24, time.Second*10)

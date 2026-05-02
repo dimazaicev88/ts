@@ -3,7 +3,7 @@ package http
 import (
 	"context"
 
-	"github.com/dimazaicev88/ts/internal/config"
+	"github.com/dimazaicev88/ts/config"
 	"github.com/dimazaicev88/ts/internal/dto"
 
 	"github.com/gofiber/fiber/v3"
@@ -12,10 +12,10 @@ import (
 type Metadata struct {
 	ctx          context.Context
 	fb           *fiber.App
-	serverConfig config.Config
+	serverConfig config.ServerConfig
 }
 
-func NewMetadata(ctx context.Context, fb *fiber.App, config config.Config) Metadata {
+func NewMetadata(ctx context.Context, fb *fiber.App, config config.ServerConfig) Metadata {
 	return Metadata{
 		fb:           fb,
 		ctx:          ctx,

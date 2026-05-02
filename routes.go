@@ -1,9 +1,9 @@
-package routes
+package ts
 
 import (
 	"context"
 
-	"github.com/dimazaicev88/ts/internal/config"
+	"github.com/dimazaicev88/ts/config"
 	httpHandlers "github.com/dimazaicev88/ts/internal/handlers/http"
 	"github.com/dimazaicev88/ts/internal/services"
 
@@ -21,7 +21,7 @@ type Routes struct {
 func NewRoutes(
 	ctx context.Context,
 	fb *fiber.App,
-	cfg config.Config,
+	cfg config.ServerConfig,
 	allServices services.AllServices,
 ) *Routes {
 	return &Routes{

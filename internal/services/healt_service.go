@@ -5,8 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/dimazaicev88/ts/internal/tools"
-
+	"github.com/dimazaicev88/ts"
 	"github.com/go-resty/resty/v2"
 	"github.com/rs/zerolog/log"
 )
@@ -23,7 +22,7 @@ func (h HealthServer) WaitServerAvailable(ctx context.Context, timeout time.Dura
 	restyClient := resty.New()
 	restyClient.SetTimeout(5 * time.Second).SetBaseURL(h.serverURL)
 
-	return tools.Until(ctx, timeout, interval, "time out", func() (completed bool, err error) {
+	return ts.Until(ctx, timeout, interval, "time out", func() (completed bool, err error) {
 		log.Debug().Msg("Waiting server available")
 		head, _ := restyClient.R().SetContext(ctx).Head("/api/v1/server/metadata")
 		return head.StatusCode() == http.StatusOK, nil
