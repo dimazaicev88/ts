@@ -7,6 +7,7 @@ import (
 	"github.com/dimazaicev88/ts/config"
 	_ "github.com/dimazaicev88/ts/docs"
 	wssHandlers "github.com/dimazaicev88/ts/internal/handlers/ws"
+	"github.com/dimazaicev88/ts/internal/routes"
 	"github.com/dimazaicev88/ts/internal/services"
 	"github.com/dimazaicev88/ts/internal/storage"
 	"github.com/dimazaicev88/ts/internal/wss"
@@ -38,7 +39,7 @@ func RunServer(ctx context.Context, config config.ServerConfig) {
 		log.Fatal().Err(err).Msg("connect to centrifugo client failed")
 	}
 	allServices := services.NewAllServices(db, centrifugeClient)
-	NewRoutes(ctx, fb, config, allServices).AddRoutes()
+	routes.NewRoutes(ctx, fb, config, allServices).AddRoutes()
 	wssHandlers.RegWssHandlers(ctx, allServices, centrifugeClient)
 	errStartServer := make(chan error)
 
