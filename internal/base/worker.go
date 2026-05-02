@@ -2,7 +2,6 @@ package base
 
 import (
 	"context"
-	"time"
 
 	"github.com/nats-io/nats.go"
 )
@@ -14,15 +13,6 @@ const Connected WorkerStatus = 1
 
 func (w WorkerStatus) ToInt8() int8 {
 	return int8(w)
-}
-
-type HandlerConfig struct {
-	Subject     string
-	Concurrency int
-	Handler     HandlerSubject
-	BatchSize   int
-	MaxWaitTime time.Duration
-	PollingTime time.Duration
 }
 
 type TmpHandlerData struct {

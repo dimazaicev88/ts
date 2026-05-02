@@ -35,7 +35,7 @@ type Worker struct {
 	centrifugeClient *centrifuge.Client
 
 	//Список обработчиков задач
-	handlers          []base.HandlerConfig
+	handlers          []config.HandlerConfig
 	ctx               context.Context
 	centrifugeService services.Centrifuge
 	uid               string
@@ -43,15 +43,15 @@ type Worker struct {
 
 func NewWorkerPool(
 	ctx context.Context,
-	config config.WorkerConfig,
+	workerConfig config.WorkerConfig,
 ) (*Worker, error) {
-	healService := services.NewHealthServer(config.ServerURL)
+	healService := services.NewHealthServer(workerConfig.ServerURL)
 	err := healService.WaitServerAvailable(ctx, time.Hour*24, time.Second*10)
 	if err != nil {
 		return nil, err
 	}
 
-	serverAPI := services.NewServerAPI(config.ServerURL)
+	serverAPI := services.NewServerAPI(workerConfig.ServerURL)
 	serverMetadata, err := serverAPI.GetServerMetadata(ctx)
 	if err != nil {
 		return nil, err
@@ -74,18 +74,18 @@ func NewWorkerPool(
 		return nil, err
 	}
 	return &Worker{
-		config:            config,
+		config:            workerConfig,
 		nc:                nc,
 		serverMetadata:    serverMetadata,
 		js:                js,
 		ctx:               ctx,
 		centrifugeClient:  centrifugeClient,
 		centrifugeService: services.NewCentrifuge(centrifugeClient),
-		handlers:          make([]base.HandlerConfig, 0),
+		handlers:          make([]config.HandlerConfig, 0),
 	}, nil
 }
 
-func (w *Worker) AddHandler(handlerConfig base.HandlerConfig) error {
+func (w *Worker) AddHandler(handlerConfig config.HandlerConfig) error {
 	if handlerConfig.Handler == nil {
 		return errors.New("handler is nil")
 	}
@@ -156,7 +156,7 @@ func (w *Worker) Start() error {
 	return g.Wait()
 }
 
-func (w *Worker) setDefaultValues(handlerConfig base.HandlerConfig) base.HandlerConfig {
+func (w *Worker) setDefaultValues(handlerConfig config.HandlerConfig) config.HandlerConfig {
 	if handlerConfig.BatchSize == 0 {
 		handlerConfig.BatchSize = 100
 	}
@@ -172,7 +172,7 @@ func (w *Worker) setDefaultValues(handlerConfig base.HandlerConfig) base.Handler
 	return handlerConfig
 }
 
-func (w *Worker) work(ctx context.Context, hc base.HandlerConfig) error {
+func (w *Worker) work(ctx context.Context, hc config.HandlerConfig) error {
 	log.Info().
 		Str("subject", hc.Subject).
 		Msg("starting worker")
@@ -234,7 +234,7 @@ func (w *Worker) work(ctx context.Context, hc base.HandlerConfig) error {
 	}
 }
 
-func (w *Worker) createSubscribe(hc base.HandlerConfig) (*nats.Subscription, error) {
+func (w *Worker) createSubscribe(hc config.HandlerConfig) (*nats.Subscription, error) {
 	sub, err := w.js.PullSubscribe(
 		hc.Subject,
 		w.serverMetadata.ConsumerName,
@@ -248,7 +248,7 @@ func (w *Worker) createSubscribe(hc base.HandlerConfig) (*nats.Subscription, err
 	return sub, nil
 }
 
-func (w *Worker) makeHandler(ctx context.Context, hc base.HandlerConfig) func(data any) {
+func (w *Worker) makeHandler(ctx context.Context, hc config.HandlerConfig) func(data any) {
 	return func(data any) {
 		handlerData := data.(base.TmpHandlerData)
 		var taskInfo base.TaskInfo
