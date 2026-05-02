@@ -3,13 +3,13 @@ package config
 import (
 	"time"
 
-	"github.com/dimazaicev88/ts/internal/base"
+	"github.com/dimazaicev88/ts/handler"
 )
 
 type HandlerConfig struct {
 	Subject     string
 	Concurrency int
-	Handler     base.HandlerSubject
+	Handler     handler.Subject
 	BatchSize   int
 	MaxWaitTime time.Duration
 	PollingTime time.Duration

@@ -1,4 +1,4 @@
-package ts
+package handler
 
 import (
 	"context"
@@ -6,13 +6,13 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
-type HandlerData struct {
+type Data struct {
 	NatsMsg  *nats.Msg
 	Ctx      context.Context
 	TaskInfo TaskInfo
 }
 
-type HandlerSubject func(ctx context.Context, handlerData HandlerData) error
+type Subject func(ctx context.Context, handlerData Data) error
 
 type TmpHandlerData struct {
 	NatsMsg *nats.Msg

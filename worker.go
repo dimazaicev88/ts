@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/dimazaicev88/ts/config"
+	"github.com/dimazaicev88/ts/handler"
 	"github.com/dimazaicev88/ts/internal/dto"
 	"github.com/dimazaicev88/ts/internal/services"
 	statusTask "github.com/dimazaicev88/ts/internal/task/status"
@@ -221,7 +222,7 @@ func (w *Worker) work(ctx context.Context, hc config.HandlerConfig) error {
 
 			for _, msg := range msgs {
 				log.Print(len(msgs))
-				err := pool.Invoke(base.TmpHandlerData{
+				err := pool.Invoke(handler.TmpHandlerData{
 					NatsMsg: msg,
 					Data:    msg.Data,
 					Ctx:     ctx,
@@ -250,8 +251,8 @@ func (w *Worker) createSubscribe(hc config.HandlerConfig) (*nats.Subscription, e
 
 func (w *Worker) makeHandler(ctx context.Context, hc config.HandlerConfig) func(data any) {
 	return func(data any) {
-		handlerData := data.(base.TmpHandlerData)
-		var taskInfo base.TaskInfo
+		handlerData := data.(handler.TmpHandlerData)
+		var taskInfo handler.TaskInfo
 		err := json.Unmarshal(handlerData.Data, &taskInfo)
 		if err != nil {
 			log.Error().Err(err).Msg("failed to unmarshal task info")
@@ -283,7 +284,7 @@ func (w *Worker) makeHandler(ctx context.Context, hc config.HandlerConfig) func(
 				}
 			}()
 
-			err = hc.Handler(ctx, base.HandlerData{
+			err = hc.Handler(ctx, handler.Data{
 				NatsMsg:  handlerData.NatsMsg,
 				Ctx:      handlerData.Ctx,
 				TaskInfo: taskInfo,
