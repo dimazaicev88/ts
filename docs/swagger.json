@@ -1,0 +1,368 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/api/v1/server/metadata": {
+            "get": {
+                "description": "Получить метаданные.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Server"
+                ],
+                "summary": "Получить метаданные.",
+                "responses": {
+                    "200": {
+                        "description": "Метаданные сервера",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ServerMetadata"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/tasks": {
+            "delete": {
+                "description": "Удалить задачи можно только в статусе complete, archived.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Удалить задачи.",
+                "parameters": [
+                    {
+                        "description": "Список UID задач",
+                        "name": "uids",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.ListUID"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Успешное удаление задач"
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/tasks/workers/{workerUID}": {
+            "get": {
+                "description": "Поиск задач",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Поиск задач",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Uid worker",
+                        "name": "workerUID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Статус задачи",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Лимит записей. Максимальное кол-во записей 1000",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Смещение от первой записи",
+                        "name": "skip",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Флаг указывают нужно ли возвращать общее кол-во записей, 0 - нет, 1 - да",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список задач",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseTasks"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/tasks/{uid}/stop": {
+            "post": {
+                "description": "Остановить задачу можно только в статусе active.\nОтправка команды остановки задачи не гарантируем остановку задачи",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Остановить задачу.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UID задачи",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Успешная посылка команды остановки задачи"
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/wrokers": {
+            "get": {
+                "description": "Поиск workers",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workers"
+                ],
+                "summary": "Поиск workers",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Название worker",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Статус worker. 0 - offline, 1 - online",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Лимит записей. Максимальное кол-во записей 1000",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Смещение от первой записи",
+                        "name": "skip",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Возвращать кол-во записей",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Workers",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.Worker"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/wrokers/{workerName}": {
+            "get": {
+                "description": "Поиск worker по названию",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workers"
+                ],
+                "summary": "Поиск worker по названию",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Название worker",
+                        "name": "workerName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Worker",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Worker"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "dto.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ListUID": {
+            "type": "object",
+            "required": [
+                "uids"
+            ],
+            "properties": {
+                "uids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "dto.ResponseTask": {
+            "type": "object",
+            "properties": {
+                "completedAt": {
+                    "type": "integer"
+                },
+                "dateCreate": {
+                    "type": "string"
+                },
+                "dateUpdate": {
+                    "type": "string"
+                },
+                "errorMsg": {
+                    "type": "string"
+                },
+                "payload": {
+                    "type": "string"
+                },
+                "result": {
+                    "description": "Результат работы воркера",
+                    "type": "string"
+                },
+                "retention": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "subject": {
+                    "description": "Nats subject",
+                    "type": "string"
+                },
+                "timeout": {
+                    "type": "integer"
+                },
+                "uid": {
+                    "type": "string"
+                },
+                "workerUid": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ResponseTasks": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ResponseTask"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.ServerMetadata": {
+            "type": "object",
+            "properties": {
+                "centrifugeURL": {
+                    "type": "string"
+                },
+                "consumerName": {
+                    "type": "string"
+                },
+                "natsUrl": {
+                    "type": "string"
+                },
+                "streamName": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.Worker": {
+            "type": "object",
+            "properties": {
+                "lastConnected": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "connected, disconnected",
+                    "type": "integer"
+                },
+                "uid": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

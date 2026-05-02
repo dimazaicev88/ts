@@ -1,0 +1,243 @@
+definitions:
+  dto.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  dto.ListUID:
+    properties:
+      uids:
+        items:
+          type: string
+        type: array
+    required:
+    - uids
+    type: object
+  dto.ResponseTask:
+    properties:
+      completedAt:
+        type: integer
+      dateCreate:
+        type: string
+      dateUpdate:
+        type: string
+      errorMsg:
+        type: string
+      payload:
+        type: string
+      result:
+        description: Результат работы воркера
+        type: string
+      retention:
+        type: integer
+      status:
+        type: string
+      subject:
+        description: Nats subject
+        type: string
+      timeout:
+        type: integer
+      uid:
+        type: string
+      workerUid:
+        type: string
+    type: object
+  dto.ResponseTasks:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/dto.ResponseTask'
+        type: array
+      total:
+        type: integer
+    type: object
+  dto.ServerMetadata:
+    properties:
+      centrifugeURL:
+        type: string
+      consumerName:
+        type: string
+      natsUrl:
+        type: string
+      streamName:
+        type: string
+    type: object
+  dto.Worker:
+    properties:
+      lastConnected:
+        type: string
+      name:
+        type: string
+      status:
+        description: connected, disconnected
+        type: integer
+      uid:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/server/metadata:
+    get:
+      description: Получить метаданные.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Метаданные сервера
+          schema:
+            $ref: '#/definitions/dto.ServerMetadata'
+      summary: Получить метаданные.
+      tags:
+      - Server
+  /api/v1/tasks:
+    delete:
+      description: Удалить задачи можно только в статусе complete, archived.
+      parameters:
+      - description: Список UID задач
+        in: body
+        name: uids
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/dto.ListUID'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Успешное удаление задач
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Удалить задачи.
+      tags:
+      - Tasks
+  /api/v1/tasks/{uid}/stop:
+    post:
+      description: |-
+        Остановить задачу можно только в статусе active.
+        Отправка команды остановки задачи не гарантируем остановку задачи
+      parameters:
+      - description: UID задачи
+        in: path
+        name: uid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Успешная посылка команды остановки задачи
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Остановить задачу.
+      tags:
+      - Tasks
+  /api/v1/tasks/workers/{workerUID}:
+    get:
+      description: Поиск задач
+      parameters:
+      - description: Uid worker
+        in: path
+        name: workerUID
+        required: true
+        type: string
+      - description: Статус задачи
+        in: query
+        name: status
+        type: string
+      - description: Лимит записей. Максимальное кол-во записей 1000
+        in: query
+        name: limit
+        type: integer
+      - description: Смещение от первой записи
+        in: query
+        name: skip
+        type: integer
+      - description: Флаг указывают нужно ли возвращать общее кол-во записей, 0 -
+          нет, 1 - да
+        in: query
+        name: count
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список задач
+          schema:
+            $ref: '#/definitions/dto.ResponseTasks'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Поиск задач
+      tags:
+      - Tasks
+  /api/v1/wrokers:
+    get:
+      description: Поиск workers
+      parameters:
+      - description: Название worker
+        in: query
+        name: name
+        type: string
+      - description: Статус worker. 0 - offline, 1 - online
+        in: query
+        name: status
+        type: integer
+      - description: Лимит записей. Максимальное кол-во записей 1000
+        in: query
+        name: limit
+        type: integer
+      - description: Смещение от первой записи
+        in: query
+        name: skip
+        type: integer
+      - description: Возвращать кол-во записей
+        in: query
+        name: count
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Workers
+          schema:
+            items:
+              $ref: '#/definitions/dto.Worker'
+            type: array
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Поиск workers
+      tags:
+      - Workers
+  /api/v1/wrokers/{workerName}:
+    get:
+      description: Поиск worker по названию
+      parameters:
+      - description: Название worker
+        in: path
+        name: workerName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Worker
+          schema:
+            $ref: '#/definitions/dto.Worker'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Поиск worker по названию
+      tags:
+      - Workers
+swagger: "2.0"

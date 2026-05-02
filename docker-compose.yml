@@ -1,0 +1,60 @@
+version: "3.9"
+
+services:
+  nats:
+    image: nats:2.12-alpine3.22
+    container_name: nats
+    restart: unless-stopped
+    command: ["-c", "/etc/nats/nats-server.conf"]
+    volumes:
+      - ./nats-server.conf:/etc/nats/nats-server.conf
+      - /var/data/nats:/data/jetstream
+    ports:
+      - "4222:4222"   # client
+      - "8222:8222"   # monitoring HTTP
+    networks:
+      - nats-net
+
+  # UI для NATS (просмотр стримов, сообщений, консьюмеров)
+  nats-ui:
+    image: ghcr.io/nats-nui/nui:latest
+    container_name: nats-ui
+    restart: unless-stopped
+    environment:
+      - NATS_SERVERS=nats://nats:4222
+    ports:
+      - "31311:31311"
+    depends_on:
+      - nats
+    networks:
+      - nats-net
+
+  nats-dashboard:
+    image: mdawar/nats-dashboard:latest
+    container_name: nats-dashboard
+    restart: unless-stopped
+    environment:
+      - NSS_URL=http://nats:8222  # URL для мониторинга NATS
+    ports:
+      - "3000:3000"  # веб-интерфейс dashboard
+    depends_on:
+      - nats
+    networks:
+      - nats-net
+
+  centrifugo:
+    image: centrifugo/centrifugo:v6 # Рекомендуется использовать точную версию!
+    container_name: centrifugo
+    ports:
+      - "8100:8000"
+    volumes:
+      - ./config.json:/centrifugo/config.json
+    command: centrifugo -c /centrifugo/config.json
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+
+networks:
+  nats-net:
+    driver: bridge
