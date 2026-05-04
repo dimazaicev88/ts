@@ -14,7 +14,7 @@ require (
 	github.com/nats-io/nats.go v1.51.0
 	github.com/panjf2000/ants/v2 v2.12.0
 	github.com/rs/zerolog v1.35.1
-	github.com/segmentio/encoding v0.4.0
+	github.com/segmentio/encoding v0.5.4
 	github.com/sirupsen/logrus v1.9.4
 	github.com/stretchr/testify v1.11.1
 	github.com/swaggo/swag v1.16.6
